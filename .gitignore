@@ -1,0 +1,32 @@
+# Local data, databases, backups, secrets and snapshots
+data/
+**/backups/
+**/.tmpdb/
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.key
+*.pem
+*.p12
+*.mobileprovision
+*.env
+.env.*
+config.json
+widget_snapshot.json
+*.log
+
+# Build and local development output
+.venv*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.tmp/
+build/
+dist/
+release/
+DerivedData/
+*.dmg
+*.exe
+*.app/
+.DS_Store

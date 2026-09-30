@@ -1,0 +1,18 @@
+# LabTime 运行 / 开发 / 打包依赖（Windows + macOS 共用）
+# Python 3.10+（已在 Python 3.14 / PySide6 6.11 验证）
+
+# ---- 客户端（LabTime.exe / LabTime.app） ----
+PySide6>=6.6
+
+# ---- 密码本加密（随手记 → 密码本）----
+cryptography>=42
+
+# ---- 同步服务器（LabTimeServer.exe；代码跨平台） ----
+fastapi>=0.110
+uvicorn>=0.29
+
+# ---- 测试 ----
+pytest>=8
+
+# ---- 打包 ----
+pyinstaller>=6.6

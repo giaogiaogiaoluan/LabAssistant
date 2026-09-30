@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- WidgetKit 扩展由系统进程托管，必须保持沙盒。Personal Team 不授权 App Groups，
+         快照由 LabAssistant 写入扩展自己的沙盒容器。 -->
+    <key>com.apple.security.app-sandbox</key><true/>
+</dict>
+</plist>

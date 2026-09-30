@@ -1,0 +1,182 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4DD3AC1C90C37C54B293C870 /* LabAssistantTodayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D70696806B7CC83EE9DD732 /* LabAssistantTodayApp.swift */; };
+		5E5B4B740DB44733B2DE5323 /* LabSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C9D793439B17FB2627314F /* LabSnapshot.swift */; };
+		C8F50A4357B5E07D3E912370 /* LabSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C9D793439B17FB2627314F /* LabSnapshot.swift */; };
+		2E3E36A101402216D2398CE9 /* LabTodayWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 405BAC14780B7C3DDE63C4A1 /* LabTodayWidget.swift */; };
+		EB86007EB858B22E11981432 /* LabAssistantTodayWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D94A69C5D197655A3E99194F /* LabAssistantTodayWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnName, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D799BAE6088A90139B415FCC /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = 98F54143AB4E86B28C3AFEE0 /* Project object */; proxyType = 1; remoteGlobalIDString = 9831A0ED7992645038323751; remoteInfo = LabAssistantTodayWidget; };
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CE80E3BBC6D03FC1A0545CA6 /* Embed App Extensions */ = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (EB86007EB858B22E11981432 /* LabAssistantTodayWidget.appex in Embed App Extensions */); name = "Embed App Extensions"; runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4D70696806B7CC83EE9DD732 /* LabAssistantTodayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "LabAssistantTodayApp.swift"; path = "Sources/HostApp/LabAssistantTodayApp.swift"; sourceTree = "<group>"; };
+		86C9D793439B17FB2627314F /* LabSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "LabSnapshot.swift"; path = "Sources/Widget/LabSnapshot.swift"; sourceTree = "<group>"; };
+		405BAC14780B7C3DDE63C4A1 /* LabTodayWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "LabTodayWidget.swift"; path = "Sources/Widget/LabTodayWidget.swift"; sourceTree = "<group>"; };
+		5DA48D6C74680F9C10A00C9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info.plist"; path = "Sources/HostApp/Info.plist"; sourceTree = "<group>"; };
+		D98696CEBCEE0244B744DC1D /* LabAssistantToday.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = "LabAssistantToday.entitlements"; path = "Sources/HostApp/LabAssistantToday.entitlements"; sourceTree = "<group>"; };
+		731EBF318E6532D6851FD46F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info.plist"; path = "Sources/Widget/Info.plist"; sourceTree = "<group>"; };
+		661781723BEB54A819C561F3 /* LabAssistantTodayWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = "LabAssistantTodayWidget.entitlements"; path = "Sources/Widget/LabAssistantTodayWidget.entitlements"; sourceTree = "<group>"; };
+		E250E12E7E2F5BE474255C22 /* LabAssistantToday.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LabAssistantToday.app"; sourceTree = BUILT_PRODUCTS_DIR; productBundleIdentifier = "com.labassistant.desktop.host"; };
+		D94A69C5D197655A3E99194F /* LabAssistantTodayWidget.appex */ = {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = "LabAssistantTodayWidget.appex"; sourceTree = BUILT_PRODUCTS_DIR; productBundleIdentifier = "com.labassistant.desktop.host.widget"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		922B8CC13B02EAD3DCCC3B0F /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		FBDA467A5CD7043F727554A9 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DF891E785808226D241F246E = {isa = PBXGroup; children = (9642F1047C1002A1EE72F0DB, 00C45FD35CB0F9C5F764F070); sourceTree = "<group>"; };
+		9642F1047C1002A1EE72F0DB /* Sources */ = {isa = PBXGroup; children = (5DA48D6C74680F9C10A00C9D /* Info.plist */, D98696CEBCEE0244B744DC1D /* LabAssistantToday.entitlements */, 4D70696806B7CC83EE9DD732 /* LabAssistantTodayApp.swift */, 731EBF318E6532D6851FD46F /* Info.plist */, 661781723BEB54A819C561F3 /* LabAssistantTodayWidget.entitlements */, 86C9D793439B17FB2627314F /* LabSnapshot.swift */, 405BAC14780B7C3DDE63C4A1 /* LabTodayWidget.swift */); name = Sources; sourceTree = "<group>"; };
+		00C45FD35CB0F9C5F764F070 /* Products */ = {isa = PBXGroup; children = (E250E12E7E2F5BE474255C22 /* LabAssistantToday.app */, D94A69C5D197655A3E99194F /* LabAssistantTodayWidget.appex */); name = Products; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXResourcesBuildPhase section */
+		81B4DC0F6E7E97037B63B86E /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		086515E75300A93EA350FB9C /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D10ECEDA0FB53BA093BEC557 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (4DD3AC1C90C37C54B293C870, 5E5B4B740DB44733B2DE5323); runOnlyForDeploymentPostprocessing = 0; };
+		3084347DA1F4EA4D93BEAAE5 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (C8F50A4357B5E07D3E912370, 2E3E36A101402216D2398CE9); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		29C7B681C8D62CBAC94D51C0 /* LabAssistantToday */ = {isa = PBXNativeTarget; buildConfigurationList = 19427AB2AFE1F1B59BC59208 /* Build configuration list for PBXNativeTarget "LabAssistantToday" */; buildPhases = (D10ECEDA0FB53BA093BEC557, 922B8CC13B02EAD3DCCC3B0F, 81B4DC0F6E7E97037B63B86E, CE80E3BBC6D03FC1A0545CA6); buildRules = (); dependencies = (6D0546F5923B0110C6BB2B63 /* PBXTargetDependency */); name = LabAssistantToday; productName = LabAssistantToday; productReference = E250E12E7E2F5BE474255C22 /* LabAssistantToday.app */; productType = "com.apple.product-type.application"; };
+		9831A0ED7992645038323751 /* LabAssistantTodayWidget */ = {isa = PBXNativeTarget; buildConfigurationList = D9B1A8AA5CE3038C6D9B9796 /* Build configuration list for PBXNativeTarget "LabAssistantTodayWidget" */; buildPhases = (3084347DA1F4EA4D93BEAAE5, FBDA467A5CD7043F727554A9, 086515E75300A93EA350FB9C); buildRules = (); dependencies = (); name = LabAssistantTodayWidget; productName = LabAssistantTodayWidget; productReference = D94A69C5D197655A3E99194F /* LabAssistantTodayWidget.appex */; productType = "com.apple.product-type.app-extension"; };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		98F54143AB4E86B28C3AFEE0 /* Project object */ = {isa = PBXProject; attributes = {BuildIndependentTargetsInParallel = YES; LastSwiftUpdateCheck = 1500; LastUpgradeCheck = 1500; TargetAttributes = {29C7B681C8D62CBAC94D51C0 = {CreatedOnToolsVersion = 15.0; }; 9831A0ED7992645038323751 = {CreatedOnToolsVersion = 15.0; }; }; }; buildConfigurationList = 7198B1A165AEE41CD0DEE38D; compatibilityVersion = "Xcode 14.0"; developmentRegion = zh_CN; hasScannedForEncodings = 0; knownRegions = (zh_CN, en, Base); mainGroup = DF891E785808226D241F246E; productRefGroup = 00C45FD35CB0F9C5F764F070 /* Products */; projectDirPath = ""; projectRoot = ""; targets = (29C7B681C8D62CBAC94D51C0 /* LabAssistantToday */, 9831A0ED7992645038323751 /* LabAssistantTodayWidget */); };
+/* End PBXProject section */
+
+/* Begin PBXTargetDependency section */
+		6D0546F5923B0110C6BB2B63 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = 9831A0ED7992645038323751 /* LabAssistantTodayWidget */; targetProxy = D799BAE6088A90139B415FCC /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		855D4B0C75ECD556474FD8F5 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				MACOSX_DEPLOYMENT_TARGET = "14.0";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = -Onone;
+				SWIFT_VERSION = "5.9";
+			}; name = Debug; };
+		4E74312DBBD620AE1CB5D771 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				MACOSX_DEPLOYMENT_TARGET = "14.0";
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = -O;
+				SWIFT_VERSION = "5.9";
+			}; name = Release; };
+		967DE5DAE8F9C3546488D3FD /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Sources/HostApp/LabAssistantToday.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Sources/HostApp/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks");
+				MACOSX_DEPLOYMENT_TARGET = "14.0";
+				MARKETING_VERSION = "2.0.1";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.labassistant.desktop.host";
+				PRODUCT_NAME = LabAssistantToday;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = -Onone;
+				SWIFT_VERSION = "5.9";
+			}; name = Debug; };
+		70A5F3AAC43D0790B57ED51A /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Sources/HostApp/LabAssistantToday.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Sources/HostApp/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks");
+				MACOSX_DEPLOYMENT_TARGET = "14.0";
+				MARKETING_VERSION = "2.0.1";
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.labassistant.desktop.host";
+				PRODUCT_NAME = LabAssistantToday;
+				SDKROOT = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = -O;
+				SWIFT_VERSION = "5.9";
+			}; name = Release; };
+		3E65CD39BD3F94C3918904FE /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Sources/Widget/LabAssistantTodayWidget.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Sources/Widget/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks", "@loader_path/../Frameworks");
+				MACOSX_DEPLOYMENT_TARGET = "14.0";
+				MARKETING_VERSION = "2.0.1";
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.labassistant.desktop.host.widget";
+				PRODUCT_NAME = LabAssistantTodayWidget;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = -Onone;
+				SWIFT_VERSION = "5.9";
+			}; name = Debug; };
+		35491E2C810F1CDC94061AC5 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "Sources/Widget/LabAssistantTodayWidget.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 7;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "Sources/Widget/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks", "@loader_path/../Frameworks");
+				MACOSX_DEPLOYMENT_TARGET = "14.0";
+				MARKETING_VERSION = "2.0.1";
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.labassistant.desktop.host.widget";
+				PRODUCT_NAME = LabAssistantTodayWidget;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = -O;
+				SWIFT_VERSION = "5.9";
+			}; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7198B1A165AEE41CD0DEE38D /* Build configuration list for PBXProject "LabAssistantToday" */ = {isa = XCConfigurationList; buildConfigurations = (855D4B0C75ECD556474FD8F5 /* Debug */, 4E74312DBBD620AE1CB5D771 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		19427AB2AFE1F1B59BC59208 /* Build configuration list for PBXNativeTarget "LabAssistantToday" */ = {isa = XCConfigurationList; buildConfigurations = (967DE5DAE8F9C3546488D3FD /* Debug */, 70A5F3AAC43D0790B57ED51A /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		D9B1A8AA5CE3038C6D9B9796 /* Build configuration list for PBXNativeTarget "LabAssistantTodayWidget" */ = {isa = XCConfigurationList; buildConfigurations = (3E65CD39BD3F94C3918904FE /* Debug */, 35491E2C810F1CDC94061AC5 /* Release */); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+
+	};
+ rootObject = 98F54143AB4E86B28C3AFEE0 /* Project object */;
+}
