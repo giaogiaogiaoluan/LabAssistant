@@ -310,10 +310,6 @@ class WebsitesPage(QWidget):
         scroll.setWidget(self.list_host)
         outer.addWidget(scroll, 1)
 
-        tip = QLabel("双击卡片或点“打开”会用系统默认浏览器访问；网站数据随同步体系跨设备同步。")
-        tip.setStyleSheet(
-            f"background:transparent; color:{T.MUTED}; font-size:{T.FS_CAPTION};")
-        outer.addWidget(tip)
 
         self._chip_btns["all"].setChecked(True)
         get_bus().changed.connect(self._on_changed)

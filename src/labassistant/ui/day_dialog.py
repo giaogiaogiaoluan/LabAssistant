@@ -170,9 +170,6 @@ class OccurrenceDialog(QDialog):
         form.addRow("临时时间", self.start_ed)
         form.addRow("", self.end_ed)
         body.addLayout(form)
-        body.addWidget(_label(
-            "说明：只影响这一天，其他周照常；跨天请直接填次日时间。",
-            ink=T.MUTED, size=T.FS_CAPTION, wrap=True))
 
         row = QHBoxLayout()
         row.setSpacing(6)
@@ -193,8 +190,6 @@ class OccurrenceDialog(QDialog):
         row.addWidget(apply_btn)
         row.addWidget(cancel_btn)
         lay.addLayout(row)
-        lay.addWidget(_label("如需彻底删除该课程，请到「课程表 - 课程管理」操作。",
-                             size=T.FS_CAPTION))
 
     def _times(self) -> tuple[int, int]:
         s = self.start_ed.time(); e = self.end_ed.time()
@@ -550,23 +545,11 @@ class DayDetailDialog(QDialog):
             else:
                 grid.addWidget(_box("超额", "+" + fmt_hm(-diff), T.GREEN_INK))
         else:
-            grid.addWidget(_box("超额(相对0)", "+" + fmt_hm(s["effective_min"]), T.GREEN_INK))
+            grid.addWidget(_box("实际时间", fmt_hm(s["effective_min"]), T.GREEN_INK))
         grid.addWidget(_box("实验室(去重后)", fmt_hm(s["lab_min"])))
         grid.addWidget(_box("课程(去重后)", fmt_hm(s["course_min"])))
         if s["manual_min"]:
             grid.addWidget(_box("手动时长", fmt_hm(s["manual_min"])))
         card.body.addLayout(grid)
 
-        if s["overlap_min"] > 0:
-            tip = _label(
-                f"已自动合并重叠区间：实验室与课程重叠共去重 {fmt_hm(s['overlap_min'])}。",
-                ink=T.MANUAL_CHIP[1], size=T.FS_FOOTNOTE, wrap=True)
-            card.body.addWidget(tip)
-        if s.get("future"):
-            card.body.addWidget(_label(
-                "未来日期：此处仅为安排参考，打卡时间不会提前计入月度统计。",
-                ink=T.MUTED, size=T.FS_FOOTNOTE, wrap=True))
-        card.body.addWidget(_label(
-            "计算公式：实验室时间段 ∪ 计入打卡的课程时间段（合并重叠）+ 手动时长 = 有效时间。",
-            ink=T.MUTED, size=T.FS_FOOTNOTE, wrap=True))
         return card

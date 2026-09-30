@@ -148,8 +148,7 @@ class StatsPage(QWidget):
         cards_wrap = QVBoxLayout(self.cards_panel)
         cards_wrap.setContentsMargins(14, 12, 14, 14)
         cards_wrap.setSpacing(10)
-        cards_wrap.addWidget(SectionHeader("月度指标", ink=T.ACCENT,
-                                           hint="MONTHLY STATUS / 工作台读数"))
+        cards_wrap.addWidget(SectionHeader("月度指标", ink=T.ACCENT))
         cards_wrap.addWidget(Hairline())
         self.cards = QVBoxLayout()
         self.cards.setContentsMargins(0, 0, 0, 0)
@@ -161,14 +160,12 @@ class StatsPage(QWidget):
         charts = QHBoxLayout()
         charts.setSpacing(14)
 
-        line_card, lc_lay = _chart_panel(
-            "每日有效时间", ink=T.ACCENT, hint="所选月份 · 单位小时")
+        line_card, lc_lay = _chart_panel("每日有效时间", ink=T.ACCENT)
         self.line_chart = LineChart()
         lc_lay.addWidget(self.line_chart, 1)
         charts.addWidget(line_card, 5)
 
-        ring_card, rc_lay = _chart_panel("完成率方格", ink=T.GREEN,
-                                        hint="40 格 × 2.5%")
+        ring_card, rc_lay = _chart_panel("完成率方格", ink=T.GREEN)
         self.ring = RingWidget()
         rc_lay.addWidget(self.ring, 1)
         self.ring_note = QLabel("")
@@ -180,17 +177,11 @@ class StatsPage(QWidget):
         charts.addWidget(ring_card, 2)
         outer_lay.addLayout(charts, 4)
 
-        bar_card, bc_lay = _chart_panel(
-            "每周累计", ink=T.GREEN, hint="近 8 周 · 绿色=达到当周目标 · 橙色虚线=周目标")
+        bar_card, bc_lay = _chart_panel("每周累计", ink=T.GREEN)
         self.bar_chart = BarChart()
         bc_lay.addWidget(self.bar_chart, 1)
         outer_lay.addWidget(bar_card, 4)
 
-        self.note_lab = QLabel("")
-        self.note_lab.setWordWrap(True)
-        self.note_lab.setStyleSheet(
-            f"color:{T.MUTED}; font-size:{T.FS_CAPTION}; background:transparent;")
-        outer_lay.addWidget(self.note_lab)
 
     def _go_current(self):
         t = date.today()
@@ -214,8 +205,7 @@ class StatsPage(QWidget):
 
         self._clear_cards()
         cards = [
-            ("要求时间", util.fmt_hours(req) + "h",
-             f"工作日 {m_sum['workday_count']} 天 × 每日要求", T.TEXT),
+            ("要求时间", util.fmt_hours(req) + "h", "", T.TEXT),
             ("完成时间", util.fmt_hours(eff) + "h", "",
              T.GREEN_INK),
             ("剩余 / 超额",
@@ -283,8 +273,3 @@ class StatsPage(QWidget):
         wv = [w["effective_min"] for w in wks]
         wr = [w["required_min"] for w in wks]
         self.bar_chart.set_series(wl, wv, wr)
-
-        self.note_lab.setText(
-            "统计口径：每日“有效时间”= 实验室时间段 ∪ 计入打卡的课程时间段（同日内自动合并重叠）"
-            " + 手动时长；月度完成 = 当月每一天有效时间之和（含周末、节假日的实际打卡）；"
-            "月度要求 = 当月工作日数 × 每日要求。")

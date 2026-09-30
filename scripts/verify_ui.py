@@ -71,7 +71,7 @@ def main() -> int:
     nav_txt = []
     for i in range(win.sidebar.list.count()):
         nav_txt.append(win.sidebar.list.item(i).text())
-    check("导航项 = 6 页", nav_txt == ["首页", "课程表", "待办", "网站", "统计", "设置"])
+    check("导航项 = 7 页", nav_txt == ["首页", "课程表", "待办", "随手记", "网站", "统计", "设置"])
 
     home_texts = all_texts(win.home)
     today = date.today()
@@ -89,7 +89,7 @@ def main() -> int:
     win.home._set_mode("week")
     app.processEvents()
     wtexts = all_texts(win.home)
-    check("周视图含「总计」", any("总计" in t for t in wtexts))
+    check("周视图含「本周目标」", any("本周目标" in t for t in wtexts))
 
     # 每日详情（构造但不 exec）
     from labassistant.ui.day_dialog import DayDetailDialog

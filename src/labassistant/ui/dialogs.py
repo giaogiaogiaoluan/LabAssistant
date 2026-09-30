@@ -291,7 +291,6 @@ class CourseDialog(QDialog):
         self.setWindowTitle("编辑课程" if self.course else "新增课程")
         lay, body = _dialog_shell(
             self, "编辑课程" if self.course else "新增课程", ink=T.INDIGO,
-            subtitle="每周重复的一节课；某天单独取消或改时间，请到课表里点那一节课。",
             min_w=460)
 
         form = _form(body)
@@ -314,7 +313,7 @@ class CourseDialog(QDialog):
         self.location_ed = QLineEdit(); self.location_ed.setPlaceholderText("地点，如：良乡 A 报告厅")
         self.teacher_ed = QLineEdit(); self.teacher_ed.setPlaceholderText("教师，如：张老师")
         self.note_ed = QLineEdit(); self.note_ed.setPlaceholderText("备注（可选）")
-        self.count_chk = QCheckBox("计入打卡时间（默认勾选，课程时段自动算入当天有效时间）")
+        self.count_chk = QCheckBox("计入打卡时间")
         self.count_chk.setChecked(db.course_counts_default())
 
         form.addRow("课程名称 *", self.name_ed)

@@ -87,7 +87,7 @@ class TodoPage(QWidget):
         pl.setSpacing(9)
         head_row = QHBoxLayout()
         head_row.setSpacing(10)
-        head_row.addWidget(SectionHeader("清单", ink=T.ACCENT, hint="未完成在前 · 逾期标红"), 1)
+        head_row.addWidget(SectionHeader("清单", ink=T.ACCENT), 1)
         self.count_lab = QLabel("")
         self.count_lab.setStyleSheet(
             f"color:{T.ACCENT}; background:{T.rgba(T.ACCENT, 0.13)}; border:none;"
@@ -131,10 +131,6 @@ class TodoPage(QWidget):
         ops.addWidget(b_edit)
         ops.addWidget(b_del)
         ops.addStretch(1)
-        tip = QLabel("双击行可编辑；勾选“完成”即切换状态；也可以在首页日历里点某天管理当天 Todo")
-        tip.setStyleSheet(
-            f"color:{T.MUTED}; font-size:{T.FS_CAPTION}; background:transparent;")
-        ops.addWidget(tip)
         pl.addLayout(ops)
         outer.addWidget(panel, 1)
 

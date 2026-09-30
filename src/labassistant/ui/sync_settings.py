@@ -59,12 +59,10 @@ class SyncSettingsCard(GlassPanel):
         lay = QVBoxLayout(self)
         lay.setContentsMargins(18, 14, 18, 14)
         lay.setSpacing(10)
-        lay.addWidget(SectionHeader(
-            "数据同步", ink=T.ACCENT,
-            hint="Windows ↔ LabAssistantServer ↔ macOS · 本机始终是主数据源"))
+        lay.addWidget(SectionHeader("数据同步", ink=T.ACCENT))
         lay.addWidget(Hairline())
 
-        self.enable_chk = QCheckBox("启用同步（离线也能正常使用，恢复后自动补同步）")
+        self.enable_chk = QCheckBox("启用同步")
         self.enable_chk.toggled.connect(self._save)
         lay.addWidget(self.enable_chk)
 
@@ -162,15 +160,14 @@ class SyncSettingsCard(GlassPanel):
         key = snap["key"]
         self.enable_chk.setChecked(snap["enabled"])
         if key == STATE_DISABLED:
-            text = "□ 未启用同步：数据完全保存在本机。"
+            text = "□ 未启用同步"
         elif key == STATE_SYNCING:
             text = "▧ 正在同步…"
         elif key == STATE_IDLE:
             text = (f"■ 已同步 · 等待同步 0 项\n"
                     f"最后同步：{snap['last_sync'] or '—'}")
         elif key == STATE_OFFLINE:
-            text = (f"□ 离线 · {snap.get('pending', 0)} 项等待同步"
-                    "（服务器恢复后自动补传）")
+            text = f"□ 离线 · {snap.get('pending', 0)} 项等待同步"
         elif key == STATE_ERROR:
             text = (f"⚠ 同步失败：{snap.get('error') or ''}\n"
                     f"等待同步：{snap.get('pending', 0)} 项")

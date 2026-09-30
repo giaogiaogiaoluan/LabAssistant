@@ -293,11 +293,7 @@ class TimetableTab(QWidget):
         legend.addWidget(make_chip("计入打卡", T.COURSE_CHIP[0], T.COURSE_CHIP[1], True))
         legend.addWidget(make_chip("不计入打卡", T.rgba(T.MUTED, 0.14), T.TEXT_SECONDARY))
         legend.addWidget(make_chip("本次已调整", T.rgba(T.AMBER, 0.16), T.AMBER))
-        tip = QLabel("点击课程卡片可“取消本次 / 临时调整”；点击空白处进入当天详情")
-        tip.setObjectName("Muted")
-        tip.setStyleSheet(f"color:{T.MUTED}; font-size:{T.FS_CAPTION};")
         legend.addStretch(1)
-        legend.addWidget(tip)
         lay.addLayout(legend)
         self._render_title()
 
@@ -366,8 +362,7 @@ class CourseManageTab(QWidget):
         lay.addLayout(bar)
 
         # ---- 课程列表（一块玻璃）
-        panel, body, self.course_head = _glass_section(
-            "课程列表", ink=T.INDIGO, hint="双击行可编辑")
+        panel, body, self.course_head = _glass_section("课程列表", ink=T.INDIGO)
         self.table = QTableWidget(0, 9)
         self.table.setHorizontalHeaderLabels(
             ["名称", "星期", "时间", "开始日期", "结束日期", "地点", "教师", "计入打卡", "备注"])
@@ -402,8 +397,7 @@ class CourseManageTab(QWidget):
         lay.addWidget(panel, 3)
 
         # ---- 单次例外（另一块玻璃）
-        panel2, body2, self.exc_head = _glass_section(
-            "单次例外记录", ink=T.AMBER, hint="某一天被取消 / 临时调整的课")
+        panel2, body2, self.exc_head = _glass_section("单次例外记录", ink=T.AMBER)
         self.exc_table = QTableWidget(0, 5)
         self.exc_table.setHorizontalHeaderLabels(["日期", "课程", "类型", "调整后时间", "备注"])
         self.exc_table.verticalHeader().setVisible(False)

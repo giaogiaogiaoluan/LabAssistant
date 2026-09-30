@@ -581,11 +581,7 @@ class HomePage(QWidget):
                           ("周末", "weekend"), ("节假日", "holiday"),
                           ("周末/节假日已打卡", "weekend_done")]:
             legend.addWidget(self._legend_item(text, T.status_dot(key)))
-        tip = QLabel("点击任意日期可录入打卡 / 管理 Todo 与课程")
-        tip.setObjectName("Muted")
-        tip.setStyleSheet(f"background:transparent; color:{T.MUTED}; font-size:{T.FS_FOOTNOTE};")
         legend.addStretch(1)
-        legend.addWidget(tip)
         outer.addLayout(legend)
 
         self.btn_prev.clicked.connect(lambda: self._navigate(-1))
@@ -736,7 +732,7 @@ class HomePage(QWidget):
             ("要求时间", util.fmt_hours(req), "小时", T.TEXT),
             ("完成时间", util.fmt_hours(eff), "小时", T.GREEN_INK),
             ("剩余 / 超额", self._diff_text(req - eff),
-             "超额 = 已完成超过目标", T.RED if eff < req else T.GREEN_INK),
+             "", T.RED if eff < req else T.GREEN_INK),
             ("完成率", util.fmt_percent(eff, req), "",
              T.GREEN_INK if rate is not None and rate >= 1 else T.ACCENT),
             ("平均每日",

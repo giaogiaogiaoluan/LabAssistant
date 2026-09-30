@@ -78,7 +78,7 @@ class CapturePage(QWidget):
         title = QLabel("随手记")
         title.setObjectName("PageTitle")
         self.page_title = title
-        self.subtitle = QLabel("一句话记下，按规则自动落到待办 / 打卡 / 网址 / 密码本")
+        self.subtitle = QLabel("")
         self.subtitle.setObjectName("PageSubtitle")
         box.addWidget(title)
         box.addWidget(self.subtitle)
@@ -119,9 +119,7 @@ class CapturePage(QWidget):
         self._tab = key
         if hasattr(self, "page_title"):
             self.page_title.setText("随手记" if key == "capture" else "密码本")
-            self.subtitle.setText(
-                "一句话记下，按规则自动落到待办 / 打卡 / 网址 / 密码本" if key == "capture"
-                else "账号密码用 AES-256-GCM 加密保存在本机，不写入同步队列")
+            self.subtitle.setText("")
         self.btn_capture.setStyleSheet(self._seg_css(key == "capture"))
         self.btn_vault.setStyleSheet(self._seg_css(key == "vault"))
         self._render_tab()
@@ -151,9 +149,7 @@ class CapturePage(QWidget):
 
         self.input = _InputBox()
         self.input.setObjectName("CaptureInput")
-        self.input.setPlaceholderText(
-            "想到什么就写什么，例如：「明天记得交实验报告，预计2小时」\n"
-            "「9/25 14:00-17:00 实验室」「华为云 账号 xx@yy.com 密码 Abc@1234」")
+        self.input.setPlaceholderText("记录待办、打卡、网址或笔记…")
         self.input.setFixedHeight(92)
         self.input.textChanged.connect(self._preview)
         self.input.submit.connect(self._submit)
@@ -162,7 +158,7 @@ class CapturePage(QWidget):
         row = QHBoxLayout()
         row.setSpacing(10)
         self.kind_badge = QLabel("")
-        self.preview_lab = QLabel("输入内容后，这里会实时显示识别结果")
+        self.preview_lab = QLabel("")
         self.preview_lab.setStyleSheet(
             f"background:transparent; color:{T.MUTED}; font-size:{T.FS_FOOTNOTE};")
         row.addWidget(self.kind_badge)
@@ -221,7 +217,7 @@ class CapturePage(QWidget):
         if not text:
             self.kind_badge.setText("")
             self.kind_badge.setStyleSheet("background:transparent; border:none;")
-            self.preview_lab.setText("输入内容后，这里会实时显示识别结果")
+            self.preview_lab.setText("")
             return
         v = cap.classify(text, date.today())
         ink = T.kind_color(v["kind"])
@@ -231,8 +227,6 @@ class CapturePage(QWidget):
             f"border-radius:{T.RADIUS_SM}px; padding:2px 10px; font-size:{T.FS_CAPTION};"
             f"font-weight:700;")
         note = cap.describe(v)
-        if v["confidence"] < 0.6:
-            note += " · 置信度低，落库后仍可手动改"
         self.preview_lab.setText(note)
 
     def _submit(self):
@@ -249,18 +243,13 @@ class CapturePage(QWidget):
         self._preview()
         self._render_timeline()
         kind = row.get("kind", "note")
-        extra = ""
-        if kind == "credential":
-            extra = "\n\n密码已用 AES-256-GCM 加密保存，可在「密码本」里查看。"
-        elif row.get("target_table"):
-            extra = f"\n已写入：{row['target_table']}#{row['target_id']}"
         QMessageBox.information(self, "已记录",
-                                f"识别为「{cap.KIND_LABEL.get(kind, kind)}」{extra}",
+                                f"{cap.KIND_LABEL.get(kind, kind)}已保存。",
                                 QMessageBox.Ok)
 
     def _show_rules(self):
         lines = [
-            f"<b>账号密码</b>：含「密码/口令/password」→ 存入密码本（AES-256-GCM 加密，不跨设备同步）",
+            f"<b>账号密码</b>：含「密码/口令/password」→ 存入密码本",
             f"<b>实验室打卡</b>：含「打卡/实验室」且带时间段或时长 → 写入打卡或手动时长",
             f"<b>节假日</b>：含「放假/调休/补班」且带日期 → 写入节假日",
             f"<b>网址收藏</b>：含链接且无待办意图 → 写入网站（类别按域名猜）",
@@ -290,7 +279,7 @@ class CapturePage(QWidget):
                 w.deleteLater()
         rows = cap.list_captures(self.db)
         if not rows:
-            empty = QLabel("还没有随手记。上面那句话怎么顺手就怎么写。")
+            empty = QLabel("暂无记录")
             empty.setAlignment(Qt.AlignCenter)
             empty.setStyleSheet(
                 f"background:transparent; color:{T.MUTED}; padding:40px;")
@@ -409,9 +398,7 @@ class CapturePage(QWidget):
         row = QHBoxLayout()
         row.setSpacing(10)
         state_ink = T.GREEN if unlocked else T.AMBER
-        state = QLabel("■ 已解锁 · 本机密钥保护" if mode == "keyfile"
-                       else ("■ 已解锁 · 主密码保护" if unlocked
-                             else "□ 已锁定 · 需要主密码"))
+        state = QLabel("■ 已解锁" if unlocked else "□ 已锁定")
         state.setStyleSheet(
             f"background:transparent; color:{T.ink(state_ink)};"
             f"font-size:{T.FS_FOOTNOTE}; font-weight:700;")
@@ -440,12 +427,6 @@ class CapturePage(QWidget):
             row.addWidget(b_pass)
         hl.addLayout(row)
 
-        tip = QLabel("密码用 AES-256-GCM 加密后入库，数据库文件里找不到明文；"
-                     "密码本不参与跨设备同步。")
-        tip.setStyleSheet(
-            f"background:transparent; color:{T.MUTED}; font-size:{T.FS_CAPTION};")
-        tip.setWordWrap(True)
-        hl.addWidget(tip)
 
         if unlocked:
             form = QHBoxLayout()
@@ -483,7 +464,7 @@ class CapturePage(QWidget):
         self.stack_host.addWidget(scroll, 1)
 
         if not unlocked:
-            empty = QLabel("密码本已锁定。输入主密码解锁后才能查看。")
+            empty = QLabel("密码本已锁定")
             empty.setAlignment(Qt.AlignCenter)
             empty.setStyleSheet(
                 f"background:transparent; color:{T.MUTED}; padding:40px;")
@@ -492,8 +473,7 @@ class CapturePage(QWidget):
 
         items = vault.list_items(self.db)
         if not items:
-            empty = QLabel("密码本还是空的。在上方填一行，或直接在「随手记」里写\n"
-                           "「华为云 账号 xx@yy.com 密码 Abc@1234」就会自动存进来。")
+            empty = QLabel("暂无密码")
             empty.setAlignment(Qt.AlignCenter)
             empty.setStyleSheet(
                 f"background:transparent; color:{T.MUTED}; padding:36px;")

@@ -93,7 +93,7 @@ class SettingsPage(QScrollArea):
         title = QLabel("设置")
         title.setObjectName("PageTitle")
         head.addWidget(title)
-        sub = QLabel(f"{C.APP_NAME} v{C.VERSION} · 数据全部保存在本机，旧版 LabTime 的库只读不写")
+        sub = QLabel(f"{C.APP_NAME} v{C.VERSION}")
         sub.setObjectName("PageSubtitle")
         head.addWidget(sub)
         outer.addLayout(head)
@@ -116,7 +116,7 @@ class SettingsPage(QScrollArea):
         self.daily_ed.setSuffix(" 小时 / 工作日")
         self.daily_ed.valueChanged.connect(self._on_rule_changed)
         g.addWidget(self.daily_ed, 0, 1)
-        g.addWidget(QLabel("工作日（勾选的天数每天产生要求时间；未勾选=周末，不产生要求）"), 1, 0, 1, 2)
+        g.addWidget(QLabel("工作日"), 1, 0, 1, 2)
         wd_row = QHBoxLayout()
         self.wd_checks: list[QCheckBox] = []
         for i, wd in enumerate(C.WEEKDAYS_CN):
@@ -134,8 +134,7 @@ class SettingsPage(QScrollArea):
 
         # 2) 节假日
         card2, body2 = _glass_card("节假日", ink=T.PURPLE)
-        body2.addWidget(_muted("法定/自定义节假日当天要求自动为 0，实际打卡仍计入月度累计。"))
-        b_hol = QPushButton("管理节假日（支持单个 / 批量添加）")
+        b_hol = QPushButton("管理节假日")
         b_hol.setObjectName("Primary")
         b_hol.clicked.connect(self._open_holidays)
         body2.addWidget(b_hol)
@@ -143,7 +142,7 @@ class SettingsPage(QScrollArea):
 
         # 3) 数据与备份
         card3, body3 = _glass_card("数据与备份", ink=T.GREEN)
-        body3.addWidget(_muted("当前数据库位置（可全选后复制）："))
+        body3.addWidget(_muted("数据位置"))
         self.db_label = _selectable("")
         body3.addWidget(self.db_label)
         self.db_meta = _muted("")
@@ -165,11 +164,7 @@ class SettingsPage(QScrollArea):
         outer.addWidget(card3)
 
         # 4) 从旧版 LabTime 导入
-        card4, body4 = _glass_card("从旧版 LabTime 导入", ink=T.AMBER,
-                                   hint="旧库全程只读，不会被修改")
-        body4.addWidget(_muted(
-            f"{C.APP_NAME} 使用独立数据库（{C.db_path().name}）。首次启动时若探测到旧库会自动"
-            "幂等导入；这里可以随时手动重新导入，合并规则保证同一行不会重复。"))
+        card4, body4 = _glass_card("从旧版 LabTime 导入", ink=T.AMBER)
         self.legacy_label = _selectable("正在探测旧版数据库…", ink=T.TEXT_SECONDARY)
         body4.addWidget(self.legacy_label)
         self.plan_label = _muted("")
@@ -185,7 +180,7 @@ class SettingsPage(QScrollArea):
         self.b_merge = QPushButton("导入并合并")
         self.b_merge.setObjectName("Primary")
         self.b_merge.clicked.connect(self._import_merge)
-        self.b_replace = QPushButton("整体替换（先自动备份）")
+        self.b_replace = QPushButton("整体替换")
         self.b_replace.setObjectName("DangerText")
         self.b_replace.clicked.connect(self._import_replace)
         for b in (self.b_rescan, self.b_merge, self.b_replace):
@@ -196,8 +191,6 @@ class SettingsPage(QScrollArea):
 
         # 5) 示例数据
         card5, body5 = _glass_card("示例数据", ink=T.TEAL)
-        body5.addWidget(_muted(
-            "示例数据只用于试用（标记为“示例”）。若已从旧版导入真实数据，不会再自动载入示例。"))
         row5 = QHBoxLayout()
         b_load = QPushButton("载入示例数据")
         b_load.clicked.connect(self._load_sample)
@@ -212,10 +205,7 @@ class SettingsPage(QScrollArea):
 
         # 6) 关于
         card6, body6 = _glass_card("关于", ink=T.INDIGO)
-        about = QLabel(
-            f"{C.APP_NAME} v{C.VERSION} · {C.APP_TITLE_CN}\n"
-            "本地离线运行的桌面程序：实验室打卡统计 + 课程表 + Todo/日程 + 网站收藏。\n"
-            "技术栈：Python + PySide6 + SQLite；所有数据保存在本机。")
+        about = QLabel(f"{C.APP_NAME} v{C.VERSION} · {C.APP_TITLE_CN}")
         about.setWordWrap(True)
         about.setStyleSheet(f"color:{T.TEXT_SECONDARY}; background:transparent;")
         body6.addWidget(about)
@@ -259,11 +249,7 @@ class SettingsPage(QScrollArea):
         p = Path(self.db.path)
         size_mb = p.stat().st_size / 1024 / 1024 if p.exists() else 0
         self.db_label.setText(str(p))
-        hint = ("数据库随数据目录而定：macOS 打包版在 ~/Library/Application Support/"
-                f"{C.APP_NAME}；源码运行在项目 data/；"
-                "可用环境变量 LABASSISTANT_DATA_DIR 指定。")
-        self.db_meta.setText(
-            f"大小：{size_mb:.2f} MB · 模式：SQLite（WAL，含 -wal / -shm 边车文件）\n{hint}")
+        self.db_meta.setText(f"大小：{size_mb:.2f} MB")
 
     def _reveal_db_file(self):
         """在文件管理器里定位数据库（macOS: 访达 open -R；Windows: explorer /select,）。"""
@@ -353,13 +339,9 @@ class SettingsPage(QScrollArea):
             return
 
         if self._legacy is None:
-            tried = "\n".join(f"  · {p}" for p in C.legacy_db_candidates()[:4])
             self.legacy_label.setText("未探测到旧版 LabTime 数据库")
-            self.plan_label.setText(
-                f"没有找到可读取的 {C.LEGACY_APP_NAME} 数据库（需要含 settings 表）。")
-            self.plan_detail.setText(
-                "已尝试的位置：\n" + (tried or "  （无）") +
-                "\n如果旧库装在别处，可把 LABTIME_DATA_DIR 指向它的 data 目录后再“重新探测”。")
+            self.plan_label.setText("")
+            self.plan_detail.setText("")
             self._set_import_enabled(False)
             self._update_migrated_info()
             return
@@ -375,18 +357,10 @@ class SettingsPage(QScrollArea):
         self.legacy_label.setText(str(self._legacy))
         self.plan_label.setText(migration.format_plan(self._plan))
         detail = []
-        ver = self._plan.get("legacy_schema_version")
-        if ver:
-            detail.append(f"旧库 schema_version={ver}")
-        detail.append(f"完整性检查：{self._plan.get('integrity_check')}")
-        detail.append(f"文件大小：{(self._plan.get('fingerprint') or {}).get('size', 0) / 1024:.0f} KB")
         if self._plan.get("target_has_data"):
             own = " · ".join(f"{migration.TABLE_CN.get(t, t)} {n}"
                              for t, n in (self._plan.get("target_rows") or {}).items() if n)
-            detail.append(f"新库已有数据（{own or '仅设置'}）：“导入并合并”只会补缺、不会覆盖你的改动；"
-                          "“整体替换”会放弃这些新库数据（会先自动备份）。")
-        else:
-            detail.append("新库还没有业务数据，导入即可得到完整的旧数据。")
+            detail.append(f"当前数据：{own or '仅设置'}")
         for w in self._plan.get("warnings") or []:
             detail.append(f"注意：{w}")
         self.plan_detail.setText("\n".join(detail))
@@ -407,9 +381,8 @@ class SettingsPage(QScrollArea):
                 f"时间：{info_map.get('migrated_at') or '—'} · 方式："
                 f"{'整体替换' if info_map.get('mode') == 'replace' else '导入并合并'}"]
         if rep.get("total_imported") is not None:
-            bits.append(f"上次结果：新增 {rep.get('total_imported')} 条 / "
-                        f"跳过 {rep.get('total_skipped')} 条 · "
-                        f"旧库未被修改={rep.get('source_untouched')}")
+            bits.append(f"上次导入：新增 {rep.get('total_imported')} 条 / "
+                        f"跳过 {rep.get('total_skipped')} 条")
         self.migrated_label.setText("\n".join(bits))
 
     def _import_merge(self):
@@ -418,11 +391,8 @@ class SettingsPage(QScrollArea):
             warn(self, "从 LabTime 导入", "没有探测到可读取的旧版数据库。")
             self._refresh_legacy()
             return
-        text = (f"将把下面旧库的数据按「同一行不重复导入」的规则合并进新库：\n\n{legacy}\n\n"
-                f"{migration.format_plan(self._plan)}\n\n"
-                "· 新库里已存在的同一条（sync_uuid 或业务键相同）不会重复导入；\n"
-                "· 你自己改过的设置与数据不会被覆盖；\n"
-                "· 旧库只读，一个字节都不会被修改。\n\n开始导入并合并吗？")
+        text = (f"将旧版数据合并到当前数据中：\n{legacy}\n\n"
+                f"{migration.format_plan(self._plan)}\n\n已有记录不会重复导入。继续吗？")
         if not ask(self, "导入并合并", text, "导入并合并"):
             return
         self._do_import(legacy, "merge")
@@ -437,15 +407,14 @@ class SettingsPage(QScrollArea):
                          for t, n in (self._plan.get("target_rows") or {}).items() if n)
         own_text = own or "仅设置项，无业务数据"
         if not ask(self, "整体替换",
-                   f"整体替换会用旧库内容「完全覆盖」新库：\n\n来源：{legacy}\n\n"
+                   f"将用旧版数据覆盖当前数据：\n\n来源：{legacy}\n\n"
                    f"{migration.format_plan(self._plan)}\n\n"
                    f"新库当前数据：{own_text}\n"
-                   "（替换前会自动备份新库到 数据目录/import_backups/）\n\n继续吗？", "继续"):
+                   "替换前会自动备份当前数据。继续吗？", "继续"):
             return
         if not ask(self, "再次确认：整体替换",
                    f"确定放弃新库当前的「{own_text}」，改用旧库内容吗？\n\n"
-                   "这一步不可撤销，但可以在“数据与备份 → 恢复…”里用自动备份回滚。\n"
-                   "旧库仍然是只读的。", "仍然替换"):
+                   "可以通过备份恢复当前数据。", "仍然替换"):
             return
         self._do_import(legacy, "replace")
 
@@ -454,9 +423,7 @@ class SettingsPage(QScrollArea):
         try:
             report = migration.run_import(self.db, legacy, mode=mode)
         except Exception as exc:  # noqa: BLE001
-            warn(self, "导入失败",
-                 f"{exc}\n\n新库未被破坏（合并失败会自动回滚事务）。\n"
-                 "若“整体替换”中途失败，请重启程序后再试。")
+            warn(self, "导入失败", str(exc))
             self._refresh_legacy()
             return
         self._load_settings()
@@ -472,14 +439,14 @@ class SettingsPage(QScrollArea):
             return
         seed.load_sample_data(self.db)
         get_bus().changed.emit()
-        info(self, "示例数据", "已载入示例数据（课程 / 打卡 / Todo），可随时清除。")
+        info(self, "示例数据", "已载入示例数据。")
 
     def _clear_sample(self):
         if not seed.has_sample(self.db):
             info(self, "示例数据", "当前没有示例数据。")
             return
         if ask(self, "清除示例数据",
-               "确定删除所有标记为“示例”的数据吗？\n（不会影响你自己录入的数据）", "清除"):
+               "确定删除所有示例数据吗？", "清除"):
             seed.clear_sample_data(self.db)
             get_bus().changed.emit()
             info(self, "已清除", "示例数据已清除。")

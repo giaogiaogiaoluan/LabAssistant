@@ -67,12 +67,6 @@ class HolidayManagerDialog(QDialog):
         head = QVBoxLayout()
         head.setSpacing(2)
         head.addWidget(SectionHeader("节假日管理", ink=T.PURPLE))
-        tip = QLabel(
-            "节假日的当天要求打卡时间自动变为 0（原本是工作日也一样）；\n"
-            "如果节假日仍然去打卡，实际时间照常计入月度累计。")
-        tip.setWordWrap(True)
-        tip.setObjectName("PageSubtitle")
-        head.addWidget(tip)
         lay.addLayout(head)
 
         # ---------------- 时间段添加（推荐） ----------------
@@ -80,8 +74,7 @@ class HolidayManagerDialog(QDialog):
         p1_lay = QVBoxLayout(p1)
         p1_lay.setContentsMargins(18, 13, 18, 13)
         p1_lay.setSpacing(10)
-        p1_lay.addWidget(SectionHeader(
-            "时间段添加", ink=T.PURPLE, hint="如：2026-10-01 ～ 2026-10-07 ＝ 国庆节"))
+        p1_lay.addWidget(SectionHeader("时间段添加", ink=T.PURPLE))
         p1_lay.addWidget(Hairline())
 
         self.start_ed = QDateEdit()
@@ -116,8 +109,7 @@ class HolidayManagerDialog(QDialog):
         p2_lay = QVBoxLayout(p2)
         p2_lay.setContentsMargins(18, 13, 18, 13)
         p2_lay.setSpacing(10)
-        p2_lay.addWidget(SectionHeader("已录入的节假日", ink=T.INDIGO,
-                                       hint="按“日期连续 + 同名”合并成一段段显示"))
+        p2_lay.addWidget(SectionHeader("已录入的节假日", ink=T.INDIGO))
         p2_lay.addWidget(Hairline())
         self.table = QTableWidget(0, 4)
         self.table.setHorizontalHeaderLabels(["时间段", "名称", "天数", "星期"])
@@ -149,9 +141,7 @@ class HolidayManagerDialog(QDialog):
         p3_lay = QVBoxLayout(p3)
         p3_lay.setContentsMargins(18, 13, 18, 13)
         p3_lay.setSpacing(10)
-        p3_lay.addWidget(SectionHeader(
-            "批量粘贴", ink=T.TEAL,
-            hint="每行一个日期，可空格后写名称；只想加一天时在上方把起始=结束即可"))
+        p3_lay.addWidget(SectionHeader("批量粘贴", ink=T.TEAL))
         p3_lay.addWidget(Hairline())
         self.batch_ed = QTextEdit()
         self.batch_ed.setPlaceholderText("2026-10-01 国庆节\n2026-10-02 国庆节")
