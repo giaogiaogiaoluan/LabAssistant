@@ -31,7 +31,7 @@ macOS 可运行 `bash scripts/build_macos.sh` 构建本机 `.app` 和 `.dmg`。W
 
 ## 数据与隐私
 
-源码运行时，数据位于项目的 `data/`；macOS 打包版位于 `~/Library/Application Support/LabAssistant/`。可通过 `LABASSISTANT_DATA_DIR` 指定其他数据目录。请勿将数据库、备份、令牌、密钥、日志或小组件快照提交到公开仓库；本仓库的 `.gitignore` 已屏蔽常见路径与扩展名。
+源码运行时，数据位于项目的 `data/`；macOS 打包版位于 `~/Library/Application Support/LabAssistant/`。
 
 同步功能由用户自行部署和配置。密码本数据与随手记原文不参与同步。首次启动可按需加载演示数据。
 
