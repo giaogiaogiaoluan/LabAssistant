@@ -11,17 +11,17 @@ LabAssistant 是本地优先的桌面应用，用于记录实验室时间、课�
 
 ## 下载与运行
 
-在 GitHub 仓库页面选择 **Code → Download ZIP**，解压后按下列步骤运行源码。需要 Python 3.10 或更新版本。
+在 GitHub 仓库页面选择 **Code → Download ZIP**，解压后按下列步骤运行源码。需要 Python 3.10 或更新版本。当前提供的是源码下载，macOS 安装包可按下文自行构建。
 
 ```bash
-cd LabAssistant
+cd LabAssistant-main  # 如果通过 Download ZIP 下载
 python3 -m venv .venv-mac
 source .venv-mac/bin/activate
 python -m pip install -r requirements.txt
 python src/main.py
 ```
 
-Windows 可将激活命令换为 `.venv-mac\\Scripts\\activate`。应用会在首次启动时自行创建空数据库；仓库不提供也不需要任何用户数据库。
+Windows PowerShell 可将激活命令换为 `.venv-mac\\Scripts\\Activate.ps1`。应用会在首次启动时自行创建空数据库；仓库不提供也不需要任何用户数据库。
 
 ```bash
 python -m pytest tests -q
