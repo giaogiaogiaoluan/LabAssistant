@@ -7,6 +7,8 @@ from datetime import date, datetime, time
 
 def fmt_hm(total_min: int) -> str:
     """1h35min / 8h / 45min / 0min 风格（带符号支持负数）。"""
+    if abs(float(total_min) - round(float(total_min))) > 1e-7:
+        return f"{fmt_hours(total_min, 2)}h"
     sign = "-" if total_min < 0 else ""
     t = abs(int(total_min))
     h, m = divmod(t, 60)
@@ -17,7 +19,7 @@ def fmt_hm(total_min: int) -> str:
     return f"{sign}{m}min"
 
 
-def fmt_hours(mins: int | float, decimals: int = 1) -> str:
+def fmt_hours(mins: int | float, decimals: int = 2) -> str:
     """分钟 -> 小时文本：480 -> '8'，450 -> '7.5'，7.5h -> '7.5'。"""
     v = float(mins) / 60.0
     s = f"{v:.{decimals}f}".rstrip("0").rstrip(".")

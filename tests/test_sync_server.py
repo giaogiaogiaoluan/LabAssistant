@@ -20,6 +20,7 @@ from labassistant.db import Database
 from labassistant.sync import client as sync_client
 from labassistant.sync.engine import SyncEngine
 from labassistant.services import attendance as att
+from labassistant.services import holidays as hds
 from labassistant.services import courses as crs
 from labassistant.services import todos as tds
 from labassistant.services import websites as ws
@@ -115,6 +116,28 @@ def test_首次全量上传与下拉_删除不复活():
         assert crs.list_courses(b) == []
         eb.run_once()  # 再次同步，不能复活
         assert crs.list_courses(b) == []
+        a.close(); b.close()
+    finally:
+        fx.stop()
+
+
+def test_补班规则和百分之一小时跨设备同步():
+    from datetime import date
+    from labassistant.services import aggregate as agg
+    fx = SyncServerFixture()
+    try:
+        a, b = make_db("special_a"), make_db("special_b")
+        ea, eb = SyncEngine(a, http_json), SyncEngine(b, http_json)
+        enable(ea, fx.url, fx.srv.token)
+        enable(eb, fx.url, fx.srv.token)
+        hds.add_special_day(a, "2026-10-10", "makeup", "国庆调休")
+        att.add_manual(a, "2026-10-10", 1.23 * 60, "补打卡")
+        assert ea.run_once()["ok"]
+        assert eb.run_once()["ok"]
+        day = agg.day_summary(b, date(2026, 10, 10))
+        assert day["required_min"] == 480
+        assert day["special_type"] == "makeup"
+        assert day["manual_min"] == 73.8
         a.close(); b.close()
     finally:
         fx.stop()

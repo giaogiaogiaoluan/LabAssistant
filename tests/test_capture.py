@@ -28,7 +28,7 @@ def db(tmp_path, monkeypatch):
     ("在实验室待了3小时", "lab"),
     ("收藏 https://arxiv.org/list/cs.CV/recent", "website"),
     ("示例网站 账号 user@example.com 密码 Example123", "credential"),
-    ("记一下 github 用户名 luanyx 口令 Xk9#pq2L", "credential"),
+    ("记一下 github 用户名 demo_user 口令 Example456", "credential"),
     ("周五调休一天", "holiday"),
     ("买牛奶", "note"),
     ("", "note"),

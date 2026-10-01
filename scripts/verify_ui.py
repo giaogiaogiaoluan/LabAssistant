@@ -118,7 +118,7 @@ def main() -> int:
     win.stack.setCurrentWidget(win.stats)
     app.processEvents()
     stexts = all_texts(win.stats)
-    for expect in ("要求时间", "完成时间", "课程贡献"):
+    for expect in ("要求时间", "完成时间", "已上课程", "本月预计课程", "预计需自行打卡"):
         check(f"统计页含「{expect}」", any(expect in t for t in stexts))
 
     # 设置页

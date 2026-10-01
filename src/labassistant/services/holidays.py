@@ -8,17 +8,73 @@ from labassistant.db import Database, now_text
 from labassistant.services import meta
 
 _ALIVE = "deleted_at IS NULL"
+MAKEUP_PREFIX = "[补班] "
+LEAVE_PREFIX = "[请假] "
+_ORIGINAL_SEP = "\x1f"
 
 
-def holiday_set(db: Database) -> set[date]:
-    rows = db.query(f"SELECT date FROM holidays WHERE {_ALIVE}")
+def rule_type(name: str) -> str:
+    if name.startswith(MAKEUP_PREFIX):
+        return "makeup"
+    if name.startswith(LEAVE_PREFIX):
+        return "leave"
+    return "holiday"
+
+
+def rule_label(name: str) -> str:
+    kind = rule_type(name)
+    if kind == "holiday":
+        return name
+    visible = name[len(MAKEUP_PREFIX if kind == "makeup" else LEAVE_PREFIX):]
+    return visible.split(_ORIGINAL_SEP, 1)[0]
+
+
+def add_special_day(db: Database, ds: str, kind: str, note: str = "") -> bool:
+    """用现有假期实体保存单日例外，以保持旧同步协议兼容。"""
+    if kind not in ("makeup", "leave"):
+        raise ValueError("特殊日期只能是补班或请假")
+    prefix = MAKEUP_PREFIX if kind == "makeup" else LEAVE_PREFIX
+    previous = get_holiday(db, ds)
+    previous_name = (previous or {}).get("name", "")
+    had_original = bool(previous)
+    if rule_type(previous_name) != "holiday":
+        had_original = _ORIGINAL_SEP in previous_name
+        previous_name = previous_name.split(_ORIGINAL_SEP, 1)[1] if had_original else ""
+    original = _ORIGINAL_SEP + previous_name if had_original else ""
+    return add_holiday(db, ds, prefix + note.strip().replace(_ORIGINAL_SEP, " ") + original)
+
+
+def remove_rule(db: Database, ds: str) -> None:
+    """撤销特殊日期时恢复被它覆盖的原假期。"""
+    row = get_holiday(db, ds)
+    if not row:
+        return
+    name = row["name"]
+    if rule_type(name) != "holiday" and _ORIGINAL_SEP in name:
+        add_holiday(db, ds, name.split(_ORIGINAL_SEP, 1)[1])
+    else:
+        delete_holiday(db, holiday_id=row["id"])
+
+
+def _dates_for_rule(db: Database, *, makeup: bool) -> set[date]:
+    rows = db.query(f"SELECT date, name FROM holidays WHERE {_ALIVE}")
     out: set[date] = set()
     for r in rows:
+        if (rule_type(r["name"]) == "makeup") != makeup:
+            continue
         try:
             out.add(date.fromisoformat(r["date"]))
         except ValueError:
             continue
     return out
+
+
+def holiday_set(db: Database) -> set[date]:
+    return _dates_for_rule(db, makeup=False)
+
+
+def makeup_set(db: Database) -> set[date]:
+    return _dates_for_rule(db, makeup=True)
 
 
 def list_holidays(db: Database) -> list[dict]:

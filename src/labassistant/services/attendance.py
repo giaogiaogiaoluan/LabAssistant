@@ -67,24 +67,24 @@ def delete_block(db: Database, block_id: int) -> None:
     )
 
 
-def add_manual(db: Database, date_str: str, minutes: int, note: str = "",
+def add_manual(db: Database, date_str: str, minutes: float, note: str = "",
                is_sample: int = 0) -> int:
     m = meta.new_row_meta(db, sample=bool(is_sample))
     return db.execute(
         "INSERT INTO manual_hours(date, minutes, note, is_sample, created, "
         "sync_uuid, created_at, updated_at, deleted_at, device_id, sync_dirty) "
         "VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-        (date_str, int(minutes), note, int(is_sample), now_text(),
+        (date_str, round(minutes, 2), note, int(is_sample), now_text(),
          m["sync_uuid"], m["created_at"], m["updated_at"], None, m["device_id"], m["sync_dirty"]),
     )
 
 
-def update_manual(db: Database, manual_id: int, minutes: int, note: str) -> None:
+def update_manual(db: Database, manual_id: int, minutes: float, note: str) -> None:
     t = meta.touch_meta(db)
     db.execute(
         "UPDATE manual_hours SET minutes=?, note=?, updated_at=?, device_id=?, "
         "sync_dirty=1, deleted_at=NULL WHERE id=? AND deleted_at IS NULL",
-        (int(minutes), note, t["updated_at"], t["device_id"], manual_id),
+        (round(minutes, 2), note, t["updated_at"], t["device_id"], manual_id),
     )
 
 

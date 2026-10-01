@@ -77,28 +77,33 @@ def day_summary(
     d: date,
     cfg: Cfg | None = None,
     holidays: set[date] | None = None,
+    makeups: set[date] | None = None,
 ) -> dict:
     cfg = cfg or load_cfg(db)
     holidays = holidays if holidays is not None else hds.holiday_set(db)
+    makeups = makeups if makeups is not None else hds.makeup_set(db)
     ds = d.isoformat()
 
     blocks = att.list_blocks(db, ds)
     manual = att.list_manual(db, ds)
     occ = crs.occurrences_on(db, d)
 
-    kind = sch.day_kind(d, cfg.workdays, holidays)
+    kind = sch.day_kind(d, cfg.workdays, holidays, makeups)
     holiday_name = ""
-    if kind == "holiday":
+    special_type = ""
+    if kind == "holiday" or d in makeups:
         hrow = hds.get_holiday(db, ds)
-        holiday_name = (hrow or {}).get("name", "")
+        name = (hrow or {}).get("name", "")
+        holiday_name = hds.rule_label(name)
+        special_type = hds.rule_type(name) if name else ""
 
-    required_min = sch.required_for_day(d, cfg.workdays, holidays, cfg.daily_min)
+    required_min = sch.required_for_day(d, cfg.workdays, holidays, cfg.daily_min, makeups)
 
     lab_pairs = [(b["start_min"], b["end_min"]) for b in blocks]
     course_pairs = [
         (o["disp_start_min"], o["disp_end_min"])
         for o in occ
-        if o["state"] != "cancelled" and o["count_attendance"]
+        if kind == "workday" and o["state"] != "cancelled" and o["count_attendance"]
     ]
     lab_min = timing.merged_duration(lab_pairs)
     course_min = timing.merged_duration(course_pairs)
@@ -119,6 +124,7 @@ def day_summary(
         "iso": ds,
         "kind": kind,
         "holiday_name": holiday_name,
+        "special_type": special_type,
         "future": future,
         "required_min": required_min,
         "lab_blocks": blocks,
@@ -185,16 +191,19 @@ def weekly_totals(db: Database, weeks_before: int = 9, ref: date | None = None) 
 
 def month_summary(db: Database, year: int, month: int) -> dict:
     holidays = hds.holiday_set(db)
+    makeups = hds.makeup_set(db)
     cfg = load_cfg(db)
     workdays = cfg.workdays
-    workday_count = sch.month_workday_count(year, month, workdays, holidays)
+    workday_count = sch.month_workday_count(year, month, workdays, holidays, makeups)
     required_total = workday_count * cfg.daily_min
 
     days: list[dict] = []
     lab_total = course_total = manual_total = overlap_total = effective_total = 0
+    scheduled_course_total = 0
     for d in sch.iter_month_dates(year, month):
-        s = day_summary(db, d, cfg, holidays)
+        s = day_summary(db, d, cfg, holidays, makeups)
         days.append(s)
+        scheduled_course_total += s["course_min"]
         if s["future"]:
             continue  # 未来日期只做安排展示，不提前计入“已完成”
         lab_total += s["lab_min"]
@@ -215,6 +224,8 @@ def month_summary(db: Database, year: int, month: int) -> dict:
         "effective_min": effective_total,
         "lab_min": lab_total,
         "course_min": course_total,
+        "scheduled_course_min": scheduled_course_total,
+        "remaining_after_courses_min": max(0, required_total - scheduled_course_total),
         "manual_min": manual_total,
         "overlap_min": overlap_total,
         "days": days,

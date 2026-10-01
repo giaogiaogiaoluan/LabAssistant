@@ -220,8 +220,12 @@ class StatsPage(QWidget):
              "完成 / 工作日数", T.TEXT),
             ("平均每周", f"{util.fmt_hours(eff / m_sum['weeks_in_month'], 1)}h",
              "完成 / 周数", T.TEXT),
-            ("课程贡献", util.fmt_hours(m_sum["course_min"]) + "h",
-             "计入打卡的课程（已按天去重）", T.INDIGO),
+            ("已上课程", util.fmt_hours(m_sum["course_min"]) + "h",
+             "截至今天已计入", T.INDIGO),
+            ("本月预计课程", util.fmt_hours(m_sum["scheduled_course_min"]) + "h",
+             "仅工作日，按数据库时段含课间", T.INDIGO),
+            ("预计需自行打卡", util.fmt_hours(m_sum["remaining_after_courses_min"]) + "h",
+             "月目标减预计课程；实际以打卡为准", T.ACCENT),
             ("实验室实际", util.fmt_hours(m_sum["lab_min"]) + "h",
              "实验时间段（已按天去重）", T.GREEN_INK),
             ("手动时长", util.fmt_hours(m_sum["manual_min"]) + "h",
@@ -229,7 +233,7 @@ class StatsPage(QWidget):
             ("重叠去重", util.fmt_hours(m_sum["overlap_min"]) + "h",
              "课程与实验室重叠部分", T.PURPLE),
         ]
-        per_row = 5
+        per_row = 4
         rows = [cards[i:i + per_row] for i in range(0, len(cards), per_row)]
         for row in rows:
             hbox = QHBoxLayout()

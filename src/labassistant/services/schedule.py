@@ -22,8 +22,11 @@ def parse_workdays_csv(csv_str: str) -> set[int]:
     return out
 
 
-def day_kind(d: date, workdays: set[int], holidays: set[date]) -> str:
+def day_kind(d: date, workdays: set[int], holidays: set[date],
+             makeups: set[date] | None = None) -> str:
     """返回 'holiday' | 'weekend' | 'workday'（节假日优先级最高）。"""
+    if makeups and d in makeups:
+        return "workday"
     if d in holidays:
         return "holiday"
     if d.weekday() not in workdays:
@@ -31,8 +34,9 @@ def day_kind(d: date, workdays: set[int], holidays: set[date]) -> str:
     return "workday"
 
 
-def is_workday(d: date, workdays: set[int], holidays: set[date]) -> bool:
-    return day_kind(d, workdays, holidays) == "workday"
+def is_workday(d: date, workdays: set[int], holidays: set[date],
+               makeups: set[date] | None = None) -> bool:
+    return day_kind(d, workdays, holidays, makeups) == "workday"
 
 
 def month_range(year: int, month: int) -> tuple[int, int]:
@@ -47,20 +51,24 @@ def iter_month_dates(year: int, month: int):
         yield date(year, month, day)
 
 
-def month_workday_count(year: int, month: int, workdays: set[int], holidays: set[date]) -> int:
-    return sum(1 for d in iter_month_dates(year, month) if is_workday(d, workdays, holidays))
+def month_workday_count(year: int, month: int, workdays: set[int], holidays: set[date],
+                        makeups: set[date] | None = None) -> int:
+    return sum(1 for d in iter_month_dates(year, month)
+               if is_workday(d, workdays, holidays, makeups))
 
 
 def required_for_day(
-    d: date, workdays: set[int], holidays: set[date], daily_required_min: int
+    d: date, workdays: set[int], holidays: set[date], daily_required_min: int,
+    makeups: set[date] | None = None,
 ) -> int:
-    return daily_required_min if is_workday(d, workdays, holidays) else 0
+    return daily_required_min if is_workday(d, workdays, holidays, makeups) else 0
 
 
 def month_required_minutes(
-    year: int, month: int, workdays: set[int], holidays: set[date], daily_required_min: int
+    year: int, month: int, workdays: set[int], holidays: set[date], daily_required_min: int,
+    makeups: set[date] | None = None,
 ) -> int:
-    return month_workday_count(year, month, workdays, holidays) * daily_required_min
+    return month_workday_count(year, month, workdays, holidays, makeups) * daily_required_min
 
 
 def week_start(d: date) -> date:

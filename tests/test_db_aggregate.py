@@ -83,6 +83,49 @@ def test_节假日使要求归零但时间仍计入():
     db.close()
 
 
+def test_假期后预计排课与补班请假():
+    db = make_db()
+    for day in range(1, 8):
+        hds.add_holiday(db, f"2026-10-{day:02d}", "国庆节")
+    # 使用虚构课程时段，公开测试不包含个人课表。
+    add_course(db, "示例课程 A", 2, 9 * 60, 10 * 60 + 30,
+               date(2026, 9, 1), date(2026, 11, 1))
+    add_course(db, "示例课程 B", 3, 13 * 60, 14 * 60,
+               date(2026, 9, 1), date(2026, 11, 1))
+    m = agg.month_summary(db, 2026, 10)
+    assert m["workday_count"] == 17
+    assert m["required_min"] == 136 * 60
+    assert m["scheduled_course_min"] == 510  # 周三 3 次、周四 4 次
+    assert m["remaining_after_courses_min"] == 7650
+    assert agg.day_summary(db, date(2026, 10, 1))["course_min"] == 0
+
+    hds.add_special_day(db, "2026-10-10", "makeup", "调休补班")
+    hds.add_special_day(db, "2026-10-12", "leave", "请假")
+    m = agg.month_summary(db, 2026, 10)
+    assert m["workday_count"] == 17  # 新增一个周末补班，免除一个周一
+    assert agg.day_summary(db, date(2026, 10, 10))["required_min"] == 480
+    assert agg.day_summary(db, date(2026, 10, 12))["required_min"] == 0
+    assert agg.day_summary(db, date(2026, 10, 12))["special_type"] == "leave"
+    hds.add_special_day(db, "2026-10-01", "makeup", "假期补班")
+    assert agg.day_summary(db, date(2026, 10, 1))["required_min"] == 480
+    hds.remove_rule(db, "2026-10-01")
+    assert agg.day_summary(db, date(2026, 10, 1))["kind"] == "holiday"
+    assert hds.get_holiday(db, "2026-10-01")["name"] == "国庆节"
+    db.close()
+
+
+def test_手动时长保留百分之一小时():
+    db = make_db()
+    d = date(2026, 9, 9)
+    rid = att.add_manual(db, d.isoformat(), 1.23 * 60, "精确时长")
+    row = db.query_one("SELECT minutes FROM manual_hours WHERE id=?", (rid,))
+    assert row["minutes"] == 73.8
+    assert agg.day_summary(db, d)["effective_min"] == 73.8
+    from labassistant.util import fmt_hours
+    assert fmt_hours(row["minutes"]) == "1.23"
+    db.close()
+
+
 def test_重叠去重_课程与实验室():
     db = make_db()
     d = date(2026, 9, 7)

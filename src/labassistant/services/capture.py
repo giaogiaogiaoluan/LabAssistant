@@ -209,7 +209,7 @@ def classify(text: str, today: date | None = None) -> dict:
             dom = m.group(1) if m else None
         fields["username"] = _strip_punct(username)
         fields["secret"] = _strip_punct(secret.group(1)) if secret else ""
-        # 域名只是邮箱后缀时不再单列，免得界面出现 “a@x.com · x.com” 这种重复
+        # 域名只是邮箱后缀时不再单列，免得界面出现 “a@example.com · example.com” 这种重复
         email_dom = (email.group(0).split("@")[-1] if email else "")
         fields["url"] = "" if (dom and email_dom and dom.endswith(email_dom)) else (dom or "")
         # 标题：先看“XX 的账号 / XX 登录”这类前缀（华为云、网盘…），再看域名

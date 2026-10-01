@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QDateEdit,
     QDialog,
+    QComboBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -29,6 +30,7 @@ from labassistant.services import holidays as hds
 from labassistant.services import schedule as sch
 from labassistant.ui import theme as T
 from labassistant.ui.bus import get_bus
+from labassistant.ui.date_picker import configure_date_picker
 from labassistant.ui.dialogs import ask, info, warn
 from labassistant.ui.glass import GlassPanel, Hairline, SectionHeader
 
@@ -53,11 +55,11 @@ def _segments(rows: list[dict]) -> list[list[dict]]:
 
 
 class HolidayManagerDialog(QDialog):
-    def __init__(self, db: Database, parent=None):
+    def __init__(self, db: Database, parent=None, initial_date: date | None = None):
         super().__init__(parent)
         self.db = db
-        self.setWindowTitle("节假日管理")
-        self.resize(700, 660)
+        self.setWindowTitle("假期与特殊日期")
+        self.resize(720, 660)
         self.setStyleSheet(f"QDialog {{ background: {T.DIALOG_BG}; }}")
         lay = QVBoxLayout(self)
         lay.setContentsMargins(20, 16, 20, 16)
@@ -66,8 +68,35 @@ class HolidayManagerDialog(QDialog):
         # ---- 标题 + 说明
         head = QVBoxLayout()
         head.setSpacing(2)
-        head.addWidget(SectionHeader("节假日管理", ink=T.PURPLE))
+        head.addWidget(SectionHeader("假期与特殊日期", ink=T.PURPLE))
+        head.addWidget(QLabel("请假免除当天目标；补班增加当天目标。假期和请假不自动累计排课，实际打卡仍计入。"))
         lay.addLayout(head)
+
+        # 单日例外共用已支持跨设备同步的假期记录，名称前缀标记补班/请假。
+        special = GlassPanel(variant="regular", radius=T.RADIUS_XL)
+        sp_lay = QVBoxLayout(special)
+        sp_lay.setContentsMargins(18, 13, 18, 13)
+        sp_lay.addWidget(SectionHeader("单日调休 / 请假", ink=T.AMBER))
+        sp_row = QHBoxLayout()
+        self.special_date = QDateEdit()
+        configure_date_picker(self.special_date)
+        self.special_date.setDisplayFormat("yyyy-MM-dd")
+        sd = initial_date or date.today()
+        self.special_date.setDate(QDate(sd.year, sd.month, sd.day))
+        self.special_kind = QComboBox()
+        self.special_kind.addItem("补班（当天要求打卡）", "makeup")
+        self.special_kind.addItem("请假（当天无需打卡）", "leave")
+        self.special_note = QLineEdit()
+        self.special_note.setPlaceholderText("说明，如：国庆调休 / 病假")
+        sp_row.addWidget(self.special_date)
+        sp_row.addWidget(self.special_kind)
+        sp_row.addWidget(self.special_note, 1)
+        sp_add = QPushButton("保存单日规则")
+        sp_add.setObjectName("Primary")
+        sp_add.clicked.connect(self._add_special)
+        sp_row.addWidget(sp_add)
+        sp_lay.addLayout(sp_row)
+        lay.addWidget(special)
 
         # ---------------- 时间段添加（推荐） ----------------
         p1 = GlassPanel(variant="strong", radius=T.RADIUS_XL)
@@ -78,10 +107,10 @@ class HolidayManagerDialog(QDialog):
         p1_lay.addWidget(Hairline())
 
         self.start_ed = QDateEdit()
-        self.start_ed.setCalendarPopup(True)
+        configure_date_picker(self.start_ed)
         self.start_ed.setDisplayFormat("yyyy-MM-dd")
         self.end_ed = QDateEdit()
-        self.end_ed.setCalendarPopup(True)
+        configure_date_picker(self.end_ed)
         self.end_ed.setDisplayFormat("yyyy-MM-dd")
         t = date.today()
         self.start_ed.setDate(QDate(t.year, t.month, t.day))
@@ -109,16 +138,23 @@ class HolidayManagerDialog(QDialog):
         p2_lay = QVBoxLayout(p2)
         p2_lay.setContentsMargins(18, 13, 18, 13)
         p2_lay.setSpacing(10)
-        p2_lay.addWidget(SectionHeader("已录入的节假日", ink=T.INDIGO))
+        p2_lay.addWidget(SectionHeader("已录入的假期与特殊日期", ink=T.INDIGO))
         p2_lay.addWidget(Hairline())
         self.table = QTableWidget(0, 4)
-        self.table.setHorizontalHeaderLabels(["时间段", "名称", "天数", "星期"])
+        self.table.setHorizontalHeaderLabels(["时间段", "类型与说明", "天数", "星期"])
         self.table.verticalHeader().setVisible(False)
         self.table.setAlternatingRowColors(True)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setShowGrid(False)
+        self.table.verticalHeader().setDefaultSectionSize(30)
+        # 表头 + 五条完整记录 + 边框；列表之外的工具不应挤占这块空间。
+        self._five_row_height = (
+            self.table.horizontalHeader().height()
+            + 5 * self.table.verticalHeader().defaultSectionSize()
+            + 2 * self.table.frameWidth() + 12)
+        self.table.setMinimumHeight(self._five_row_height)
         h = self.table.horizontalHeader()
         h.setSectionResizeMode(1, QHeaderView.Stretch)
         self.table.setColumnWidth(0, 200)
@@ -136,16 +172,20 @@ class HolidayManagerDialog(QDialog):
         p2_lay.addLayout(del_row)
         lay.addWidget(p2, 3)
 
-        # ---------------- 批量粘贴 ----------------
-        p3 = GlassPanel(variant="thin", radius=T.RADIUS_XL)
-        p3_lay = QVBoxLayout(p3)
+        # ---------------- 批量粘贴（默认收起，让已录入记录先完整显示） ----------------
+        self.batch_toggle = QPushButton("展开批量粘贴")
+        self.batch_toggle.setCheckable(True)
+        self.batch_toggle.toggled.connect(self._toggle_batch)
+        lay.addWidget(self.batch_toggle)
+        self.batch_panel = GlassPanel(variant="thin", radius=T.RADIUS_XL)
+        p3_lay = QVBoxLayout(self.batch_panel)
         p3_lay.setContentsMargins(18, 13, 18, 13)
         p3_lay.setSpacing(10)
         p3_lay.addWidget(SectionHeader("批量粘贴", ink=T.TEAL))
         p3_lay.addWidget(Hairline())
         self.batch_ed = QTextEdit()
         self.batch_ed.setPlaceholderText("2026-10-01 国庆节\n2026-10-02 国庆节")
-        self.batch_ed.setFixedHeight(72)
+        self.batch_ed.setFixedHeight(60)
         p3_lay.addWidget(self.batch_ed)
         row2 = QHBoxLayout()
         row2.setSpacing(6)
@@ -156,7 +196,8 @@ class HolidayManagerDialog(QDialog):
         row2.addWidget(b_batch)
         row2.addStretch(1)
         p3_lay.addLayout(row2)
-        lay.addWidget(p3)
+        lay.addWidget(self.batch_panel)
+        self.batch_panel.hide()
 
         c_row = QHBoxLayout()
         c_row.addStretch(1)
@@ -169,6 +210,12 @@ class HolidayManagerDialog(QDialog):
 
         self.reload()
 
+    def _toggle_batch(self, expanded: bool):
+        self.table.setMinimumHeight(90 if expanded else self._five_row_height)
+        self.batch_panel.setVisible(expanded)
+        self.batch_toggle.setText("收起批量粘贴" if expanded else "展开批量粘贴")
+        self.resize(self.width(), 790 if expanded else 693)
+
     # ---------------- 数据 ----------------
     def reload(self):
         segs = _segments(hds.list_holidays(self.db))
@@ -176,7 +223,10 @@ class HolidayManagerDialog(QDialog):
         for r, seg in enumerate(segs):
             first = date.fromisoformat(seg[0]["date"])
             last = date.fromisoformat(seg[-1]["date"])
-            name = seg[0]["name"] or "（未命名）"
+            raw_name = seg[0]["name"] or ""
+            kind = hds.rule_type(raw_name)
+            label = {"makeup": "补班", "leave": "请假", "holiday": "假期"}[kind]
+            name = f"{label} · {hds.rule_label(raw_name) or '（无说明）'}"
             span = first.isoformat() if first == last else f"{first.isoformat()} ~ {last.isoformat()}"
             cells = [span, name + (f"（{len(seg)} 天）" if len(seg) > 1 else ""),
                      f"{len(seg)} 天", sch.weekday_cn(first.weekday())]
@@ -185,6 +235,14 @@ class HolidayManagerDialog(QDialog):
                 if c == 0:
                     it.setData(Qt.UserRole, (first.isoformat(), last.isoformat(), seg[0]["name"]))
                 self.table.setItem(r, c, it)
+
+    def _add_special(self):
+        d = self._qdate(self.special_date)
+        kind = self.special_kind.currentData()
+        hds.add_special_day(self.db, d.isoformat(), kind, self.special_note.text())
+        get_bus().changed.emit()
+        self.reload()
+        info(self, "已保存", f"{d.isoformat()} 已设为{'补班' if kind == 'makeup' else '请假'}。")
 
     def _add_range(self):
         s = self._qdate(self.start_ed)
@@ -249,7 +307,7 @@ class HolidayManagerDialog(QDialog):
         rows = hds.list_holidays(self.db)
         for h in rows:
             if first_s <= h["date"] <= last_s and (h["name"] or "") == (name or ""):
-                hds.delete_holiday(self.db, holiday_id=h["id"])
+                hds.remove_rule(self.db, h["date"])
         get_bus().changed.emit()
         self.reload()
 

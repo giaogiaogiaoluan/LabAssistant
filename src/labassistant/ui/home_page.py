@@ -168,7 +168,7 @@ class DayCell(QFrame):
         if s["lab_min"]:
             lines.append(("验", f"实验室 {util.fmt_hours(s['lab_min'])}h"))
         if s["manual_min"]:
-            lines.append(("手", f"手动 {util.fmt_hours(s['manual_min'])}h"))
+            lines.append(("手", f"手动 {util.fmt_hours(s['manual_min'], 2)}h"))
         done_todos = [x for x in s["todos"] if x["done"]]
         open_todos = [x for x in s["todos"] if not x["done"]]
         for t in open_todos[:2]:
@@ -226,19 +226,20 @@ class DayCell(QFrame):
         tip = [f"{d.year}年{d.month}月{d.day}日 {WEEKDAYS_CN[d.weekday()]}",
                f"状态：{s['status_label']}"]
         if s["holiday_name"]:
-            tip[0] += f"（{s['holiday_name']}）"
+            prefix = {"makeup": "补班", "leave": "请假"}.get(s["special_type"], "假期")
+            tip[0] += f"（{prefix}：{s['holiday_name']}）"
         for occ in s["occ"]:
             st = {"normal": "", "moved": "【已调】", "cancelled": "【已取消】"}[occ["state"]]
             tip.append(f"课程 {st}{occ['name']} "
                        f"{timing.min_to_clock(occ['disp_start_min'])}–"
                        f"{timing.min_to_clock(occ['disp_end_min'])}"
-                       f"{'（不计入）' if not occ['count_attendance'] else ''}")
+                       f"{'（不计入）' if not occ['count_attendance'] or s['kind'] == 'holiday' else ''}")
         for b in s["lab_blocks"]:
             tip.append(f"实验室 {timing.min_to_clock(b['start_min'])}–"
                        f"{timing.min_to_clock(b['end_min'])}"
                        f"{'　' + b['note'] if b['note'] else ''}")
         for m in s["manual_items"]:
-            tip.append(f"手动 {util.fmt_hours(m['minutes'])}h"
+            tip.append(f"手动 {util.fmt_hours(m['minutes'], 2)}h"
                        f"{'　' + m['note'] if m['note'] else ''}")
         for t in s["todos"]:
             tip.append(f"{'■' if t['done'] else '□'} {t['title']}")
@@ -474,7 +475,7 @@ class WeekGrid(QWidget):
                 txt += f" {b['note']}"
             add_line(txt, f"color:{T.LAB_CHIP[1]}; font-size:9.5pt;")
         for m in s["manual_items"]:
-            add_line(f"手动 {util.fmt_hours(m['minutes'])}h",
+            add_line(f"手动 {util.fmt_hours(m['minutes'], 2)}h",
                      f"color:{T.MANUAL_CHIP[1]}; font-size:9.5pt;")
         for t in s["todos"]:
             mark = "■" if t["done"] else "□"
@@ -681,7 +682,8 @@ class HomePage(QWidget):
             self.subtitle_lab.setText(
                 f"工作日 {m['workday_count']} 天 · "
                 f"实验室 {util.fmt_hours(m['lab_min'])}h · "
-                f"课程 {util.fmt_hours(m['course_min'])}h · "
+                f"已上课程 {util.fmt_hours(m['course_min'])}h · "
+                f"本月排课 {util.fmt_hours(m['scheduled_course_min'])}h · "
                 f"手动 {util.fmt_hours(m['manual_min'])}h")
             self._build_month_panel(m)
             grid = MonthGrid(self.db)
@@ -745,6 +747,13 @@ class HomePage(QWidget):
             box.set_sub(sub)
             self._add_metric(row, box, i == 0)
         self._add_progress(lay, rate)
+        estimate = QLabel(
+            f"本月预计课程 {util.fmt_hours(m['scheduled_course_min'])}h（含课间） · "
+            f"预计需自行打卡 {util.fmt_hours(m['remaining_after_courses_min'])}h"
+        )
+        estimate.setStyleSheet(
+            f"background:transparent; color:{T.MUTED}; font-size:{T.FS_FOOTNOTE};")
+        lay.addWidget(estimate)
 
     def _build_week_panel(self, wk: dict):
         panel, row, lay = self._panel()

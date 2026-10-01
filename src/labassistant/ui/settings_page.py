@@ -132,9 +132,10 @@ class SettingsPage(QScrollArea):
         body1.addLayout(g)
         outer.addWidget(card1)
 
-        # 2) 节假日
-        card2, body2 = _glass_card("节假日", ink=T.PURPLE)
-        b_hol = QPushButton("管理节假日")
+        # 2) 假期与单日例外
+        card2, body2 = _glass_card("假期与特殊日期", ink=T.PURPLE)
+        body2.addWidget(_muted("可登记连续假期，也可单独登记补班或请假；补班增加当天目标，请假免除当天目标。"))
+        b_hol = QPushButton("管理假期与特殊日期")
         b_hol.setObjectName("Primary")
         b_hol.clicked.connect(self._open_holidays)
         body2.addWidget(b_hol)

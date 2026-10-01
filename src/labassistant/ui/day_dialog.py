@@ -279,6 +279,10 @@ class DayDetailDialog(QDialog):
         kind_txt = {
             "workday": "工作日", "weekend": "周末", "holiday": f"节假日{s['holiday_name'] and ' · ' + s['holiday_name'] or ''}"
         }[s["kind"]]
+        if s["special_type"] == "makeup":
+            kind_txt = "补班" + (f" · {s['holiday_name']}" if s["holiday_name"] else "")
+        elif s["special_type"] == "leave":
+            kind_txt = "请假" + (f" · {s['holiday_name']}" if s["holiday_name"] else "")
         ink = T.status_ink(s["status_key"])
         self.kind_lab.setText(f"{kind_txt} ｜ 状态：{s['status_label']}")
         self.kind_lab.setStyleSheet(
@@ -287,6 +291,9 @@ class DayDetailDialog(QDialog):
             " font-weight:600;")
 
         clear_layout(self.body)
+        rule_btn = QPushButton("调整当日规则（补班 / 请假 / 假期）")
+        rule_btn.clicked.connect(self._edit_day_rule)
+        self.body.addWidget(rule_btn)
         self.body.addWidget(self._build_courses(s))
         self.body.addWidget(self._build_attendance(s))
         self.body.addWidget(self._build_todos(s))
@@ -296,9 +303,18 @@ class DayDetailDialog(QDialog):
         self.bus.changed.emit()
         self._reload()
 
+    def _edit_day_rule(self):
+        from labassistant.ui.holiday_dialog import HolidayManagerDialog
+        HolidayManagerDialog(self.db, parent=self, initial_date=self.d).exec()
+        self._refresh()
+
     # ---------- 课程区 ----------
     def _build_courses(self, s) -> _Card:
         card = _Card("今日课程", ink=T.INDIGO)
+        if s["kind"] == "holiday":
+            card.body.addWidget(_label(
+                "假期 / 请假当天的课程仅供查看，不自动计入打卡；实际打卡仍可手动记录。",
+                ink=T.MUTED, wrap=True))
         if not s["occ"]:
             card.body.addWidget(_label("今天没有排课", ink=T.MUTED, wrap=True))
             return card
@@ -377,7 +393,7 @@ class DayDetailDialog(QDialog):
             lay = QHBoxLayout(row)
             lay.setContentsMargins(12, 4, 6, 4)
             lay.setSpacing(4)
-            text = f"手动 {fmt_hours(m['minutes'])}h"
+            text = f"手动 {fmt_hours(m['minutes'], 2)}h"
             if m.get("note"):
                 text += f"　{m['note']}"
             lab = _label(text, ink=T.MANUAL_CHIP[1], size=T.FS_FOOTNOTE)

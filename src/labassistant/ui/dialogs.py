@@ -37,6 +37,7 @@ from labassistant.services import courses as crs
 from labassistant.services import timing
 from labassistant.services import todos as tds
 from labassistant.ui import theme as T
+from labassistant.ui.date_picker import configure_date_picker
 from labassistant.ui.glass import GlassPanel, Hairline, SectionHeader
 from labassistant.util import fmt_hm
 
@@ -252,8 +253,8 @@ class ManualDialog(QDialog):
 
         form = _form(body)
         self.hours_ed = QDoubleSpinBox()
-        self.hours_ed.setRange(0.05, 24)
-        self.hours_ed.setSingleStep(0.25)
+        self.hours_ed.setRange(0.01, 24)
+        self.hours_ed.setSingleStep(0.01)
         self.hours_ed.setDecimals(2)
         self.hours_ed.setSuffix(" 小时")
         self.note_ed = QLineEdit()
@@ -269,7 +270,7 @@ class ManualDialog(QDialog):
         _buttons(self, lay, "保存", self._on_accept)
 
     def _on_accept(self):
-        minutes = int(round(self.hours_ed.value() * 60))
+        minutes = round(self.hours_ed.value() * 60, 2)
         if minutes <= 0:
             warn(self, "无法保存", "时长必须大于 0。")
             return
@@ -306,11 +307,11 @@ class CourseDialog(QDialog):
         self.start_date_ed = QDateEdit()
         self.end_date_ed = QDateEdit()
         for de in (self.start_date_ed, self.end_date_ed):
-            de.setCalendarPopup(True)
+            configure_date_picker(de)
             de.setDisplayFormat("yyyy-MM-dd")
         self.start_date_ed.setDate(QDate(today.year, today.month, today.day))
         self.end_date_ed.setDate(QDate(today.year, today.month, today.day) .addMonths(4))
-        self.location_ed = QLineEdit(); self.location_ed.setPlaceholderText("地点，如：良乡 A 报告厅")
+        self.location_ed = QLineEdit(); self.location_ed.setPlaceholderText("地点，如：教学楼 A")
         self.teacher_ed = QLineEdit(); self.teacher_ed.setPlaceholderText("教师，如：张老师")
         self.note_ed = QLineEdit(); self.note_ed.setPlaceholderText("备注（可选）")
         self.count_chk = QCheckBox("计入打卡时间")
@@ -433,7 +434,7 @@ class TodoDialog(QDialog):
             min_w=460)
 
         form = _form(body)
-        self.date_ed = QDateEdit(); self.date_ed.setCalendarPopup(True)
+        self.date_ed = QDateEdit(); configure_date_picker(self.date_ed)
         self.date_ed.setDisplayFormat("yyyy-MM-dd")
         d = date.today() if default_date is None else default_date
         self.date_ed.setDate(QDate(d.year, d.month, d.day))
@@ -449,7 +450,7 @@ class TodoDialog(QDialog):
         self.deadline_chk = QCheckBox("设置截止时间")
         self.deadline_ed = QDateTimeEdit()
         self.deadline_ed.setDisplayFormat("yyyy-MM-dd HH:mm")
-        self.deadline_ed.setCalendarPopup(True)
+        configure_date_picker(self.deadline_ed)
         from datetime import datetime
         now = datetime.now()
         self.deadline_ed.setDateTime(self.deadline_ed.dateTime().fromString(

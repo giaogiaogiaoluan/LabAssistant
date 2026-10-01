@@ -12,7 +12,7 @@ from pathlib import Path
 
 APP_NAME = "LabAssistant"
 APP_TITLE_CN = "实验室时间与日程助手"
-VERSION = "2.0.1"
+VERSION = "2.0.4"
 
 # 旧版 LabTime 的数据位置（只读探测 → 迁移来源，按优先级排列）
 LEGACY_APP_NAME = "LabTime"

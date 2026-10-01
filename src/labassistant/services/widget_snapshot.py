@@ -56,8 +56,8 @@ def _hhmm(minute_of_day: int) -> str:
 
 def _hours(minutes: int) -> str:
     """和软件里一致的时长文案：整数就不带小数。"""
-    h = (int(minutes) or 0) / 60.0
-    return f"{h:g}" if abs(h - round(h)) < 1e-6 else f"{h:.1f}"
+    h = (float(minutes) or 0) / 60.0
+    return f"{h:g}" if abs(h - round(h)) < 1e-6 else f"{h:.2f}"
 
 
 def build_snapshot(db: Database, today: date | None = None) -> dict[str, Any]:
@@ -69,11 +69,11 @@ def build_snapshot(db: Database, today: date | None = None) -> dict[str, Any]:
     open_todos = [t for t in todos if not t["done"]]
     done_todos = [t for t in todos if t["done"]]
     req = int(day["required_min"] or 0)
-    eff = int(day["effective_min"] or 0)
+    eff = round(day["effective_min"] or 0)
 
     # 下一条要上的课（按开始时间排序，取还没结束的）
     now_min = datetime.now().hour * 60 + datetime.now().minute
-    upcoming = sorted((o for o in occ if o["disp_end_min"] > now_min),
+    upcoming = sorted((o for o in occ if day["kind"] == "workday" and o["disp_end_min"] > now_min),
                       key=lambda o: o["disp_start_min"])
     nxt = upcoming[0] if upcoming else None
     # 最近一条未完成待办（按 id 即录入顺序）
@@ -98,7 +98,7 @@ def build_snapshot(db: Database, today: date | None = None) -> dict[str, Any]:
         "ratio": round(eff / req, 4) if req else (1.0 if eff else 0.0),
         "lab_min": int(day["lab_min"] or 0),
         "course_min": int(day["course_min"] or 0),
-        "manual_min": int(day["manual_min"] or 0),
+        "manual_min": round(day["manual_min"] or 0),
         "overlap_min": int(day["overlap_min"] or 0),
         "courses": [
             {
@@ -107,7 +107,7 @@ def build_snapshot(db: Database, today: date | None = None) -> dict[str, Any]:
                 "end": _hhmm(o["disp_end_min"]),
                 "location": o.get("location") or "",
                 "state": o["state"],
-                "counts": bool(o.get("count_attendance", 1)),
+                "counts": day["kind"] == "workday" and bool(o.get("count_attendance", 1)),
             }
             for o in sorted(occ, key=lambda x: x["disp_start_min"])
         ],
